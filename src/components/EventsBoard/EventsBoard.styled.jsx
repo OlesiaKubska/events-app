@@ -14,41 +14,47 @@ export const EventsList = styled.ul`
  list-style-type: none;
  padding: 0;
 
- @media (min-width: 768px) {
+ @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
   grid-template-columns: repeat(2, 1fr);
  }
 
- @media (min-width: 1024px) {
+ @media (min-width: ${({ theme }) => theme.breakpoint.desktop}) {
   grid-template-columns: repeat(4, 1fr);
  }
 `;
 
 export const EventCard = styled.li`
- border: 1px solid #ccc;
+ border: 1px solid ${({ theme }) => theme.border};
+ background-color: ${({ theme }) => theme.cardBackground};
  border-radius: 8px;
  padding: 16px;
  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
  width: 250px;
+ display: flex;
+ flex-direction: column;
+ justify-content: space-between;
 `;
 
 export const EventTitle = styled.h2`
  font-size: 1.5rem;
  margin-bottom: 8px;
+ color: ${({ theme }) => theme.text};
 `;
 
 export const EventDescription = styled.p`
  font-size: 1rem;
- color: #666;
+ color: ${({ theme }) => theme.text};
 `;
 
 export const EventDate = styled.p`
  font-size: 0.9rem;
- color: #888;
+ color: ${({ theme }) => theme.text};
 `;
 
 export const Organizer = styled.p`
  font-size: 1rem;
  margin-bottom: 12px;
+ color: ${({ theme }) => theme.text};
 `;
 
 export const ButtonBox = styled.div`
@@ -58,7 +64,7 @@ export const ButtonBox = styled.div`
 
 export const ButtonLink = styled(Link)`
  margin: 0 10px;
- color: #007bff;
+ color: ${({ theme }) => theme.buttonBackground};
  text-decoration: none;
 
  &:hover {
@@ -72,12 +78,13 @@ export const Pagination = styled.div`
  align-items: center;
  margin-top: 20px;
  font-size: 1.2rem;
+ color: ${({ theme }) => theme.text};
 `;
 
 export const PageNumber = styled.span`
  margin: 0 5px;
  cursor: pointer;
- color: #007bff;
+ color: ${({ theme }) => theme.buttonBackground};
  font-weight: ${(props) => (props.$isActive ? "bold" : "normal")};
 
  &:hover {
@@ -87,6 +94,7 @@ export const PageNumber = styled.span`
 
 export const Arrow = styled(PageNumber)`
  font-size: 1.5rem;
+
  &:hover {
   text-decoration: none;
  }
