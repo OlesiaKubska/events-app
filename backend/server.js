@@ -33,12 +33,19 @@ app.get("/events", async (req, res) => {
 
 // Роут для додавання нового учасника
 app.post("/register", async (req, res) => {
- const { fullName, email, dob, eventId } = req.body;
- await db.query(
-  "INSERT INTO participants (fullName, email, dob, eventId) VALUES (?, ?, ?, ?)",
-  [fullName, email, dob, eventId]
- );
- res.json({ success: true });
+ const { fullName, email, dob, heardFrom, eventId } = req.body;
+
+ try {
+  await db.query(
+   "INSERT INTO participants (fullName, email, dob, heardFrom, eventId) VALUES (?, ?, ?, ?, ?)",
+   [fullName, email, dob, heardFrom, eventId]
+  );
+
+  res.status(201).json({ success: true });
+ } catch (error) {
+  console.error("Error saving registration:", error);
+  res.status(500).json({ success: false, message: "Registration failed." });
+ }
 });
 
 app.listen(5000, () => {

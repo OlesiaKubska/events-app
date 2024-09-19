@@ -1,83 +1,110 @@
-import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import {
+ InputGroup,
+ RadioGroup,
+ RegistrationContainer,
+ SubmitButton,
+} from "./EventRegistration.styled";
 
 const EventRegistration = () => {
  const { eventId } = useParams();
- const [formData, setFormData] = useState({
-  fullName: "",
-  email: "",
-  dob: "",
-  source: "",
+
+ const validationSchema = Yup.object({
+  fullName: Yup.string().required("Full name is required"),
+  email: Yup.string()
+   .email("Invalid email address")
+   .required("Email is required"),
+  dob: Yup.date().required("Date of birth is required"),
+  heardFrom: Yup.string().required("Please select an option"),
  });
 
- const handleChange = (e) => {
-  setFormData({
-   ...formData,
-   [e.target.name]: e.target.value,
-  });
- };
+ const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  try {
+   const response = await fetch(`http://localhost:5000/register`, {
+    method: "POST",
+    headers: {
+     "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+     ...values,
+     eventId,
+    }),
+   });
 
- const handleSubmit = (e) => {
-  e.preventDefault();
-  fetch(`http://localhost:5000/register`, {
-   method: "POST",
-   headers: {
-    "Content-Type": "application/json",
-   },
-   body: JSON.stringify({ ...formData, eventId }),
-  })
-   .then((response) => response.json())
-   .then((data) => {
-    if (data.success) {
-     alert("Registration successful!");
-    }
-   })
-   .catch((error) => console.error("Error registering:", error));
+   if (response.ok) {
+    alert("Registration successful!");
+    resetForm();
+   } else {
+    alert("Registration failed.");
+   }
+  } catch (error) {
+   console.error("Error submitting registration:", error);
+  } finally {
+   setSubmitting(false);
+  }
  };
 
  return (
-  <div>
-   <h1>Register for Event</h1>
-   <form onSubmit={handleSubmit}>
-    <div>
-     <label>Full Name:</label>
-     <input
-      type="text"
-      name="fullName"
-      value={formData.fullName}
-      onChange={handleChange}
-     />
-    </div>
-    <div>
-     <label>Email:</label>
-     <input
-      type="email"
-      name="email"
-      value={formData.email}
-      onChange={handleChange}
-     />
-    </div>
-    <div>
-     <label>Date of Birth:</label>
-     <input
-      type="date"
-      name="dob"
-      value={formData.dob}
-      onChange={handleChange}
-     />
-    </div>
-    <div>
-     <label>Where did you hear about this event?</label>
-     <input
-      type="text"
-      name="source"
-      value={formData.source}
-      onChange={handleChange}
-     />
-    </div>
-    <button type="submit">Submit</button>
-   </form>
-  </div>
+  <RegistrationContainer>
+   <h1>Event Registration</h1>
+   <Formik
+    initialValues={{
+     fullName: "",
+     email: "",
+     dob: "",
+     heardFrom: "",
+    }}
+    validationSchema={validationSchema}
+    onSubmit={handleSubmit}
+   >
+    {({ isSubmitting }) => (
+     <Form>
+      <InputGroup>
+       <label htmlFor="fullName">Full name</label>
+       <Field type="text" id="fullName" name="fullName" />
+       <ErrorMessage name="fullName" component="div" className="error" />
+      </InputGroup>
+
+      <InputGroup>
+       <label htmlFor="email">Email</label>
+       <Field type="email" id="email" name="email" />
+       <ErrorMessage name="email" component="div" className="error" />
+      </InputGroup>
+
+      <InputGroup>
+       <label htmlFor="dob">Date of birth</label>
+       <Field type="date" id="dob" name="dob" />
+       <ErrorMessage name="dob" component="div" className="error" />
+      </InputGroup>
+
+      <InputGroup>
+       <p>Where did you hear about this event?</p>
+       <RadioGroup>
+        <label>
+         <Field type="radio" name="heardFrom" value="Social media" />
+         Social media
+        </label>
+        <label>
+         <Field type="radio" name="heardFrom" value="Friends" />
+         Friends
+        </label>
+        <label>
+         <Field type="radio" name="heardFrom" value="Found myself" />
+         Found myself
+        </label>
+       </RadioGroup>
+       <ErrorMessage name="heardFrom" component="div" className="error" />
+      </InputGroup>
+
+      <SubmitButton type="submit" disabled={isSubmitting}>
+       {isSubmitting ? "Registering..." : "Register"}
+      </SubmitButton>
+     </Form>
+    )}
+   </Formik>
+  </RegistrationContainer>
  );
 };
 
