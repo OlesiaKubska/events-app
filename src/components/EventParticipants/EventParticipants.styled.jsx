@@ -28,3 +28,13 @@ export const ParticipantEmail = styled.p`
  color: #666;
  font-size: 0.9rem;
 `;
+
+export const SearchInput = styled.input`
+ padding: 10px;
+ margin-bottom: 20px;
+ width: 100%;
+ max-width: 400px;
+ border: 1px solid ${({ theme }) => theme.border};
+ border-radius: 5px;
+ font-size: 1rem;
+`;

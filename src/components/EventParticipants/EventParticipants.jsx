@@ -6,11 +6,13 @@ import {
  ParticipantName,
  ParticipantsContainer,
  ParticipantsList,
+ SearchInput,
 } from "./EventParticipants.styled";
 
 const EventParticipants = () => {
  const { eventId } = useParams();
  const [participants, setParticipants] = useState([]);
+ const [searchTerm, setSearchTerm] = useState("");
 
  useEffect(() => {
   const fetchParticipants = async () => {
@@ -31,16 +33,32 @@ const EventParticipants = () => {
   fetchParticipants();
  }, [eventId]);
 
+ const filteredParticipants = participants.filter(
+  (participant) =>
+   participant.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+   participant.email.toLowerCase().includes(searchTerm.toLowerCase())
+ );
+
  return (
   <ParticipantsContainer>
    <h1>Event Participants</h1>
+   <SearchInput
+    type="text"
+    placeholder="Search participants by name or email"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+   />
    <ParticipantsList>
-    {participants.map((participant) => (
-     <ParticipantCard key={participant.id}>
-      <ParticipantName>{participant.fullName}</ParticipantName>
-      <ParticipantEmail>{participant.email}</ParticipantEmail>
-     </ParticipantCard>
-    ))}
+    {filteredParticipants.length > 0 ? (
+     filteredParticipants.map((participant) => (
+      <ParticipantCard key={participant.id}>
+       <ParticipantName>{participant.fullName}</ParticipantName>
+       <ParticipantEmail>{participant.email}</ParticipantEmail>
+      </ParticipantCard>
+     ))
+    ) : (
+     <p>No participants found</p>
+    )}
    </ParticipantsList>
   </ParticipantsContainer>
  );
