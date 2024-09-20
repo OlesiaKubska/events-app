@@ -48,13 +48,15 @@ initializeDB().then((connection) => {
 });
 
 app.get("/events", async (req, res) => {
- try {
-  const [rows] = await db.query("SELECT * FROM events");
-  res.json(rows);
- } catch (error) {
-  console.error("Error fetching events:", error);
-  res.status(500).json({ error: "Failed to fetch events" });
- }
+ const page = Math.max(1, parseInt(req.query.page) || 1);
+ const limit = Math.min(100, parseInt(req.query.limit) || 10);
+ const offset = (page - 1) * limit;
+
+ const [events] = await db.query("SELECT * FROM events LIMIT ? OFFSET ?", [
+  limit,
+  offset,
+ ]);
+ res.json(events);
 });
 
 app.post("/register", async (req, res) => {

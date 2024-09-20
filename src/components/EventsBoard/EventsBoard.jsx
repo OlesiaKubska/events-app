@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
  Container,
  EventsList,
@@ -8,10 +8,10 @@ import {
  EventDate,
  Organizer,
  ButtonLink,
- Pagination,
- PageNumber,
+ //  Pagination,
+ //  PageNumber,
  ButtonBox,
- Arrow,
+ //  Arrow,
  Select,
 } from "./EventsBoard.styled";
 
@@ -20,29 +20,47 @@ const EventsBoard = () => {
  const [sortOption, setSortOption] = useState("all");
  const [currentPage, setCurrentPage] = useState(1);
  const eventsPerPage = 12;
+ const [hasMore, setHasMore] = useState(true);
+ const observer = useRef();
 
  useEffect(() => {
-  fetch("http://localhost:5000/events")
-   .then((response) => response.json())
-   .then((data) => setEvents(data))
-   .catch((error) => console.error("Error fetching events:", error));
- }, []);
+  const fetchEvents = async () => {
+   const response = await fetch(
+    `http://localhost:5000/events?page=${currentPage}&limit=${eventsPerPage}`
+   );
+   const data = await response.json();
 
- const indexOfLastEvent = currentPage * eventsPerPage;
- const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
- const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+   const newEvents = data.filter(
+    (event) => !events.some((e) => e.id === event.id)
+   );
 
- const paginate = (pageNumber) => setCurrentPage(pageNumber);
+   if (newEvents.length > 0) {
+    setEvents((prevEvents) => [...prevEvents, ...newEvents]);
+   } else {
+    setHasMore(false);
+   }
+  };
+
+  fetchEvents();
+ }, [currentPage, events]);
+
+ const lastEventElementRef = (node) => {
+  if (observer.current) observer.current.disconnect();
+  observer.current = new IntersectionObserver((entries) => {
+   if (entries[0].isIntersecting && hasMore) {
+    setCurrentPage((prevPage) => prevPage + 1);
+   }
+  });
+  if (node) observer.current.observe(node);
+ };
 
  const handleSort = (option) => {
   setSortOption(option);
+  setCurrentPage(1);
+  setEvents([]);
+  setHasMore(true);
 
-  if (option === "all") {
-   fetch("http://localhost:5000/events")
-    .then((response) => response.json())
-    .then((data) => setEvents(data))
-    .catch((error) => console.error("Помилка завантаження подій:", error));
-  } else {
+  if (option !== "all") {
    const sortedEvents = [...events].sort((a, b) => {
     if (option === "title") return a.title.localeCompare(b.title);
     if (option === "eventDate")
@@ -52,6 +70,15 @@ const EventsBoard = () => {
    setEvents(sortedEvents);
   }
  };
+
+ const uniqueEvents = events.reduce((acc, current) => {
+  const x = acc.find((item) => item.id === current.id);
+  if (!x) {
+   return acc.concat([current]);
+  } else {
+   return acc;
+  }
+ }, []);
 
  return (
   <Container>
@@ -63,38 +90,32 @@ const EventsBoard = () => {
     <option value="organizer">Sort by Organizer</option>
    </Select>
    <EventsList>
-    {currentEvents.map((event) => (
-     <EventCard key={event.id}>
-      <EventTitle>{event.title}</EventTitle>
-      <EventDescription>{event.description}</EventDescription>
-      <EventDate>{new Date(event.eventDate).toLocaleDateString()}</EventDate>
-      <Organizer>Organizer: {event.organizer}</Organizer>
-      <ButtonBox>
-       <ButtonLink to={`/register/${event.id}`}>Register</ButtonLink>
-       <ButtonLink to={`/participants/${event.id}`}>View</ButtonLink>
-      </ButtonBox>
-     </EventCard>
-    ))}
-   </EventsList>
-   <Pagination>
-    {currentPage > 1 && (
-     <Arrow onClick={() => paginate(currentPage - 1)}>←</Arrow>
-    )}
-    {[...Array(Math.ceil(events.length / eventsPerPage)).keys()].map(
-     (number) => (
-      <PageNumber
-       key={number + 1}
-       onClick={() => paginate(number + 1)}
-       $isActive={currentPage === number + 1}
-      >
-       {number + 1}
-      </PageNumber>
+    {uniqueEvents.map((event, index) =>
+     events.length === index + 1 ? (
+      <EventCard key={`${event.id}-${index}`} ref={lastEventElementRef}>
+       <EventTitle>{event.title}</EventTitle>
+       <EventDescription>{event.description}</EventDescription>
+       <EventDate>{new Date(event.eventDate).toLocaleDateString()}</EventDate>
+       <Organizer>Organizer: {event.organizer}</Organizer>
+       <ButtonBox>
+        <ButtonLink to={`/register/${event.id}`}>Register</ButtonLink>
+        <ButtonLink to={`/participants/${event.id}`}>View</ButtonLink>
+       </ButtonBox>
+      </EventCard>
+     ) : (
+      <EventCard key={`${event.id}-${index}`}>
+       <EventTitle>{event.title}</EventTitle>
+       <EventDescription>{event.description}</EventDescription>
+       <EventDate>{new Date(event.eventDate).toLocaleDateString()}</EventDate>
+       <Organizer>Organizer: {event.organizer}</Organizer>
+       <ButtonBox>
+        <ButtonLink to={`/register/${event.id}`}>Register</ButtonLink>
+        <ButtonLink to={`/participants/${event.id}`}>View</ButtonLink>
+       </ButtonBox>
+      </EventCard>
      )
     )}
-    {currentPage < Math.ceil(events.length / eventsPerPage) && (
-     <Arrow onClick={() => paginate(currentPage + 1)}>→</Arrow>
-    )}
-   </Pagination>
+   </EventsList>
   </Container>
  );
 };
