@@ -12,10 +12,12 @@ import {
  PageNumber,
  ButtonBox,
  Arrow,
+ Select,
 } from "./EventsBoard.styled";
 
 const EventsBoard = () => {
  const [events, setEvents] = useState([]);
+ const [sortOption, setSortOption] = useState("all");
  const [currentPage, setCurrentPage] = useState(1);
  const eventsPerPage = 12;
 
@@ -32,9 +34,30 @@ const EventsBoard = () => {
 
  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+ const handleSort = (option) => {
+  setSortOption(option);
+  if (option === "all") {
+   return;
+  }
+  const sortedEvents = [...events].sort((a, b) => {
+   if (option === "title") return a.title.localeCompare(b.title);
+   if (option === "eventDate")
+    return new Date(a.eventDate) - new Date(b.eventDate);
+   if (option === "organizer") return a.organizer.localeCompare(b.organizer);
+  });
+  setEvents(sortedEvents);
+  setCurrentPage(1);
+ };
+
  return (
   <Container>
    <h1>Events</h1>
+   <Select value={sortOption} onChange={(e) => handleSort(e.target.value)}>
+    <option value="all">All</option>
+    <option value="title">Sort by Title</option>
+    <option value="eventDate">Sort by Date</option>
+    <option value="organizer">Sort by Organizer</option>
+   </Select>
    <EventsList>
     {currentEvents.map((event) => (
      <EventCard key={event.id}>

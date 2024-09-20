@@ -99,3 +99,23 @@ export const Arrow = styled(PageNumber)`
   text-decoration: none;
  }
 `;
+
+export const Select = styled.select`
+ padding: 10px;
+ font-size: 1rem;
+ color: ${({ theme }) => theme.text};
+ background-color: ${({ theme }) => theme.cardBackground};
+ border: 1px solid ${({ theme }) => theme.border};
+ border-radius: 4px;
+ outline: none;
+ margin-bottom: 20px;
+
+ &:focus {
+  border-color: ${({ theme }) => theme.buttonBackground};
+ }
+
+ option {
+  background-color: ${({ theme }) => theme.cardBackground};
+  color: ${({ theme }) => theme.text};
+ }
+`;
