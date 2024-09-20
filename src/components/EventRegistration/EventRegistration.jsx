@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
  InputGroup,
  RadioGroup,
@@ -59,7 +61,7 @@ const EventRegistration = () => {
     validationSchema={validationSchema}
     onSubmit={handleSubmit}
    >
-    {({ isSubmitting }) => (
+    {({ isSubmitting, setFieldValue, values }) => (
      <Form>
       <InputGroup>
        <label htmlFor="fullName">Full name</label>
@@ -75,7 +77,14 @@ const EventRegistration = () => {
 
       <InputGroup>
        <label htmlFor="dob">Date of birth</label>
-       <Field type="date" id="dob" name="dob" />
+       <DatePicker
+        selected={values.dob}
+        onChange={(date) =>
+         setFieldValue("dob", date ? date.toISOString().split("T")[0] : "")
+        }
+        dateFormat="yyyy-MM-dd"
+        placeholderText="Select a date"
+       />
        <ErrorMessage name="dob" component="div" className="error" />
       </InputGroup>
 

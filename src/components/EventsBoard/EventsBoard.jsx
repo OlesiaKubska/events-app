@@ -36,17 +36,21 @@ const EventsBoard = () => {
 
  const handleSort = (option) => {
   setSortOption(option);
+
   if (option === "all") {
-   return;
+   fetch("http://localhost:5000/events")
+    .then((response) => response.json())
+    .then((data) => setEvents(data))
+    .catch((error) => console.error("Помилка завантаження подій:", error));
+  } else {
+   const sortedEvents = [...events].sort((a, b) => {
+    if (option === "title") return a.title.localeCompare(b.title);
+    if (option === "eventDate")
+     return new Date(a.eventDate) - new Date(b.eventDate);
+    if (option === "organizer") return a.organizer.localeCompare(b.organizer);
+   });
+   setEvents(sortedEvents);
   }
-  const sortedEvents = [...events].sort((a, b) => {
-   if (option === "title") return a.title.localeCompare(b.title);
-   if (option === "eventDate")
-    return new Date(a.eventDate) - new Date(b.eventDate);
-   if (option === "organizer") return a.organizer.localeCompare(b.organizer);
-  });
-  setEvents(sortedEvents);
-  setCurrentPage(1);
  };
 
  return (

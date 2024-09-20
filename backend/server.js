@@ -60,6 +60,8 @@ app.get("/events", async (req, res) => {
 app.post("/register", async (req, res) => {
  const { fullName, email, dob, heardFrom, eventId } = req.body;
 
+ console.log(req.body);
+
  try {
   await db.query(
    "INSERT INTO participants (fullName, email, dob, heardFrom, eventId) VALUES (?, ?, ?, ?, ?)",
