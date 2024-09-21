@@ -8,6 +8,8 @@ export const Nav = styled.nav`
  background-color: ${({ theme }) => theme.body};
  padding: 20px;
  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+ position: relative;
+ z-index: 1000;
 `;
 
 export const Logo = styled.div`
