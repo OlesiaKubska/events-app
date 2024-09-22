@@ -8,10 +8,7 @@ import {
  EventDate,
  Organizer,
  ButtonLink,
- //  Pagination,
- //  PageNumber,
  ButtonBox,
- //  Arrow,
  Select,
 } from "./EventsBoard.styled";
 
@@ -71,14 +68,14 @@ const EventsBoard = () => {
   }
  };
 
- const uniqueEvents = events.reduce((acc, current) => {
-  const x = acc.find((item) => item.id === current.id);
-  if (!x) {
-   return acc.concat([current]);
-  } else {
-   return acc;
-  }
- }, []);
+ //  const uniqueEvents = events.reduce((acc, current) => {
+ //   const x = acc.find((item) => item.id === current.id);
+ //   if (!x) {
+ //    return acc.concat([current]);
+ //   } else {
+ //    return acc;
+ //   }
+ //  }, []);
 
  return (
   <Container>
@@ -90,7 +87,7 @@ const EventsBoard = () => {
     <option value="organizer">Sort by Organizer</option>
    </Select>
    <EventsList>
-    {uniqueEvents.map((event, index) =>
+    {events.map((event, index) =>
      events.length === index + 1 ? (
       <EventCard key={`${event.id}-${index}`} ref={lastEventElementRef}>
        <EventTitle>{event.title}</EventTitle>
